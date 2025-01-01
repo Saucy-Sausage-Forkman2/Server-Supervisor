@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import asyncio
 from palworld_api import PalworldAPI
 
-from scozFormatMinecraft import scozFormatMinecraft
+from formatMinecraft import formatMinecraft
 from scozFormatPalworld import scozFormatPalworld
 from helpEmbed import help
 
@@ -22,10 +22,14 @@ scozJavaPort=os.getenv("scozJavaPort")
 scozBedrockPort=os.getenv("scozBedrockPort")
 scozPalworldRESTPort=os.getenv("scozPalworldRESTPort")
 scozPalworldPort=os.getenv("scozPalworldPort")
+dharMinecraftPort=os.getenv("dharMinecraftPort")
+
+whitelisted = " (whitelisted)"
 
 scozPalworldAddress=publicAddress+":"+scozPalworldPort+" (password protected)"
-scozJavaAddress=publicAddress+":"+scozJavaPort+" (whitelisted)"
-scozBedrockAddress=publicAddress+":"+scozBedrockPort+" (whitelisted)"
+scozJavaAddress=publicAddress+":"+scozJavaPort+whitelisted
+scozBedrockAddress=publicAddress+":"+scozBedrockPort+whitelisted
+dharMinecraftAddress=publicAddress+":"+dharMinecraftPort+whitelisted
 
 adminID=os.getenv("adminID")
 
@@ -132,8 +136,18 @@ async def minecraftPing(category):
             except:
                 bedrockStatus = 0
 
-    return scozFormatMinecraft(javaStatus,bedrockStatus, category, scozJavaAddress, scozBedrockAddress)
+            return formatMinecraft(javaStatus, category, scozJavaAddress, bedrockAddress=scozBedrockAddress, bedrock=bedrockStatus, bothOnlineTitle="Diesel Nation", onlyJavaTitle="Diesel Nation: Bedrock Unreachable", onlyBedrockTitle="Diesel Nation: Java Unreachable", bothOfflineTitle="Diesel Nation is Offline")
 
+        case "dhar":
+            #Java Status Request
+            javaStatus = await JavaServer.async_lookup(address+":"+dharMinecraftPort)
+            javaStatus = await javaStatus.async_status()
+            
+            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Dharcraft 2077")
+
+
+    #rewrite format functions into category independent versions
+    
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -187,9 +201,6 @@ async def on_message(message):
                 case "supervisor":
                     await jsonCreateSupervisor(message, arguments[1])
 
-                case "category":
-                    await jsonCreateCategory(message, arguments[1])
-
                 case _:
                     await message.channel.send(embed=help())
 
@@ -200,9 +211,6 @@ async def on_message(message):
             match(arguments[0]):
                 case "supervisor":
                     await jsonRemoveSupervisor(message, arguments[1])
-
-                case "category":
-                    await jsonRemoveCategory(message, arguments[1])
 
                 case _:
                     await message.channel.send(embed=help())
@@ -238,7 +246,14 @@ async def supervisorLoop(quickUpdate=False):
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
                             await supervisorMessage.edit(content=None, embeds=ping)
                 case "dhar":
-                    pass
+                    minecraftStatus = await minecraftPing(category="dhar")
+                
+                    for j in range( len( data[i])):
+                        for k in data[i][j]:
+                            #copy and paste saves lives
+                            supervisorChannel = await client.fetch_channel(f'{k}')
+                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
+                            await supervisorMessage.edit(content=None, embed=minecraftStatus)
 
         if quickUpdate: return
         await asyncio.sleep(delayInSeconds)
