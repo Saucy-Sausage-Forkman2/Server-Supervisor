@@ -6,7 +6,7 @@ def time():
     pm = ' AM'
     if hour >= 12:
         pm = " PM"
-    if hour > 13:
+    if hour >= 13:
         hour -= 12
     if minute < 10:
         minute = "0" + str(minute)

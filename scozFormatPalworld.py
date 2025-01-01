@@ -3,7 +3,7 @@ import discord
 from dotenv import load_dotenv
 from getTimestamp import time
 def scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress):
-    palworldTitle = "Palworld: Appraisal of the Tower"
+    palworldTitle = "Palworld: Hawk Tuah the Tower"
     palworldSettings = json.loads(palworldSettings)
     aliveColor = discord.Colour.blue()
     deadColor = discord.Colour.dark_red()
