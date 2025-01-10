@@ -140,9 +140,12 @@ async def minecraftPing(category):
 
         case "dhar":
             #Java Status Request
-            javaStatus = await JavaServer.async_lookup(address+":"+dharMinecraftPort)
-            javaStatus = await javaStatus.async_status()
-            
+            try:
+            	javaStatus = await JavaServer.async_lookup(address+":"+dharMinecraftPort)
+            	javaStatus = await javaStatus.async_status()
+            except:
+            	javaStatus = 0
+            	
             return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Dharcraft 2077")
 
 

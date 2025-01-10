@@ -130,7 +130,7 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
     else:
         embed = discord.Embed(
             title=onlyJavaTitle,
-            color=twoServerColor,
+            color=zeroServerColor,
         )
         embed.add_field(name="",value="Server Offline")
         embed.set_footer(text=time())
