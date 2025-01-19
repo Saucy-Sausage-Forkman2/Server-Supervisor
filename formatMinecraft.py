@@ -56,12 +56,18 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
             javaPlayerList = java.players.sample
             #only java servers provide a list of active players
 
-            embed.add_field(name="Players", value=f"{players}" + "/" + f"{maxPlayers}")
+            accountsToHide = 0
             if javaPlayerList != None:
                 #go through the array of usernames and compile them into a list for beauty
                 formattedUsernames = ""
                 for i in javaPlayerList:
-                    formattedUsernames += " " + i.name + "\n"
+                    match(i.name):
+                        case ".Celeryboi890": 
+                            accountsToHide += 1
+                            continue            
+                        case _:
+                            formattedUsernames += " " + i.name + "\n"
+                embed.add_field(name="Players", value=f"{players - accountsToHide}" + "/" + f"{maxPlayers}")
                 embed.add_field(name="", value=formattedUsernames,inline=True)
             else: embed.add_field(name="",value="",inline=True) # a new line to separate the player fields so it looks nice
             
@@ -104,7 +110,6 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
         maxPlayers=java.players.max
         javaPlayerList = java.players.sample
         #only java servers provide a list of active players
-
         embed.add_field(name="Players", value=f"{players}" + "/" + f"{maxPlayers}")
         if javaPlayerList != None:
             #go through the array of usernames and compile them into a list for beauty

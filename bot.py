@@ -238,10 +238,6 @@ async def supervisorLoop(quickUpdate=False):
                     minecraftStatus = await minecraftPing(category="scoz")
                     palworldStatus = await palworldPing(category="scoz")
                     ping = [minecraftStatus,palworldStatus]
-                    #dontcrash = await client.fetch_channel(f'{i}')
-                    #print(f'Updating supervisor in {dontcrash}')
-                    #dontcrash = await dontcrash.fetch_message(data[f'{i}'])
-                    #dontcrash = await dontcrash.edit(content=None, embeds=ping)
                     for j in range( len( data[i])):
                         for k in data[i][j]:
                             #don't like the nesting, but this is the easiest way to get the channel IDs from the json array
