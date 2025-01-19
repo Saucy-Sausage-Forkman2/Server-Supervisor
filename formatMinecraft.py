@@ -62,6 +62,9 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
                 formattedUsernames = ""
                 for i in javaPlayerList:
                     match(i.name):
+                        case "ItsSquishy173": 
+                            accountsToHide += 1
+                            continue    
                         case ".Tyranny22": 
                             accountsToHide += 1
                             continue     
