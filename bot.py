@@ -16,6 +16,7 @@ from helpEmbed import help
 load_dotenv()
 
 address=os.getenv("address")
+address2=os.getenv("address2")
 publicAddress=os.getenv("publicAddress")
 
 scozJavaPort=os.getenv("scozJavaPort")
@@ -141,7 +142,7 @@ async def minecraftPing(category):
         case "dhar":
             #Java Status Request
             try:
-            	javaStatus = await JavaServer.async_lookup(address+":"+dharMinecraftPort)
+            	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
             	javaStatus = await javaStatus.async_status()
             except:
             	javaStatus = 0
