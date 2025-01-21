@@ -67,10 +67,7 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
                             continue    
                         case ".Tyranny22": 
                             accountsToHide += 1
-                            continue     
-                        case ".Celeryboi890": 
-                            accountsToHide += 1
-                            continue            
+                            continue              
                         case _:
                             formattedUsernames += " " + i.name + "\n"
                 embed.add_field(name="Players", value=f"{players - accountsToHide}" + "/" + f"{maxPlayers}")
