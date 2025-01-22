@@ -57,23 +57,21 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
             #only java servers provide a list of active players
 
             accountsToHide = 0
-            if javaPlayerList != None:
-                #go through the array of usernames and compile them into a list for beauty
-                formattedUsernames = ""
-                for i in javaPlayerList:
-                    match(i.name):
-                        case "ItsSquishy173": 
-                            accountsToHide += 1
-                            continue    
-                        case ".Tyranny22": 
-                            accountsToHide += 1
-                            continue              
-                        case _:
-                            formattedUsernames += " " + i.name + "\n"
+            #go through the array of usernames and compile them into a list for beauty
+            formattedUsernames = ""
+            for i in javaPlayerList:
+                match(i.name):
+                    case "ItsSquishy173": 
+                        accountsToHide += 1
+                        continue    
+                    case ".Tyranny22": 
+                        accountsToHide += 1
+                        continue              
+                    case _:
+                        formattedUsernames += " " + i.name + "\n"
                 embed.add_field(name="Players", value=f"{players - accountsToHide}" + "/" + f"{maxPlayers}")
                 embed.add_field(name="", value=formattedUsernames,inline=True)
-            else: embed.add_field(name="",value="",inline=True) # a new line to separate the player fields so it looks nice
-            
+
             embed.add_field(name="", value="",inline=False)
 
             #I placed the player count before the Java server header as it applies to both java and bedrock, and it feels wrong to have the
