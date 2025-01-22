@@ -28,7 +28,7 @@ dharMinecraftPort=os.getenv("dharMinecraftPort")
 whitelisted = " (whitelisted)"
 
 scozPalworldAddress=publicAddress+":"+scozPalworldPort+" (password protected)"
-scozJavaAddress=publicAddress+whitelisted
+scozJavaAddress="java."+publicAddress+whitelisted
 scozBedrockAddress=publicAddress+whitelisted
 dharMinecraftAddress=publicAddress+":"+dharMinecraftPort+whitelisted
 
