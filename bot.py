@@ -137,7 +137,15 @@ async def minecraftPing(category):
             except:
                 bedrockStatus = 0
 
-            return formatMinecraft(javaStatus, category, scozJavaAddress, bedrockAddress=scozBedrockAddress, bedrock=bedrockStatus, bothOnlineTitle="Diesel Nation", onlyJavaTitle="Diesel Nation: Bedrock Unreachable", onlyBedrockTitle="Diesel Nation: Java Unreachable", bothOfflineTitle="Diesel Nation is Offline")
+            return formatMinecraft(javaStatus, 
+                                   category, 
+                                   scozJavaAddress, 
+                                   bedrockAddress=scozBedrockAddress,
+                                   bedrock=bedrockStatus, 
+                                   bothOnlineTitle="Bellycraft", 
+                                   onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
+                                   onlyBedrockTitle="Bellycraft: Java Unreachable", 
+                                   bothOfflineTitle="Bellycraft Offline")
 
         case "dhar":
             #Java Status Request
