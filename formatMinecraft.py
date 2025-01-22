@@ -59,16 +59,17 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
             accountsToHide = 0
             #go through the array of usernames and compile them into a list for beauty
             formattedUsernames = ""
-            for i in javaPlayerList:
-                match(i.name):
-                    case "ItsSquishy173": 
-                        accountsToHide += 1
-                        continue    
-                    case ".Tyranny22": 
-                        accountsToHide += 1
-                        continue              
-                    case _:
-                        formattedUsernames += " " + i.name + "\n"
+            if javaPlayerList != None:
+                for i in javaPlayerList:
+                    match(i.name):
+                        case "ItsSquishy173": 
+                            accountsToHide += 1
+                            continue    
+                        case ".Tyranny22": 
+                            accountsToHide += 1
+                            continue              
+                        case _:
+                            formattedUsernames += " " + i.name + "\n"
             embed.add_field(name="Players", value=f"{players - accountsToHide}" + "/" + f"{maxPlayers}")
             embed.add_field(name="", value=formattedUsernames,inline=True)
 
