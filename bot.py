@@ -174,8 +174,8 @@ async def palworldPing(category):
         case "scoz":
             username = os.getenv("SCOZPALWORLDADMINUSERNAME")
             password = os.getenv("SCOZPALWORLDADMINPASSWORD")
-            api = PalworldAPI("http://"+address+":"+scozPalworldRESTPort, username, password)
-		
+            api = PalworldAPI("http://"+address2+":"+scozPalworldRESTPort, username, password)
+            
             server_info = await api.get_server_info() #dictionary, not json
             palworldPlayers = await api.get_player_list()# print all names in array again
             palworldSettings = await api.get_server_settings()
