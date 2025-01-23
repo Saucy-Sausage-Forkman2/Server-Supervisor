@@ -34,7 +34,7 @@ minecraftSubDomain="mc."
 scozPalworldAddress=scozPublicAddress+":"+scozPalworldPort+" (password protected)"
 scozJavaAddress=minecraftSubDomain+scozPublicAddress+whitelisted
 scozBedrockAddress=minecraftSubDomain+scozPublicAddress+whitelisted
-dharMinecraftAddress=dharPublicAddress+whitelisted
+dharMinecraftAddress=minecraftSubDomain+dharPublicAddress+whitelisted
 
 adminID=os.getenv("adminID")
 
