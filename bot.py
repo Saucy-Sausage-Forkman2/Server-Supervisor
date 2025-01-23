@@ -123,6 +123,7 @@ dharMinecraftOfflineTrigger = False
 
 #minecraft-specific functions
 async def minecraftPing(category):
+    global dharMinecraftOfflineTrigger
     javaStatus = ""
     bedrockStatus = ""
     match(category):
@@ -156,12 +157,13 @@ async def minecraftPing(category):
             try:
             	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
             	javaStatus = await javaStatus.async_status()
-                dharMinecraftOfflineTrigger = False
+            	dharMinecraftOfflineTrigger = False
             except Exception as e:
             	print(e)
-                if dharMinecraftOfflineTrigger = False:
+            	if dharMinecraftOfflineTrigger == False:
                     dharMinecraftOfflineTrigger = True
-                    await client.fetch_user(788175994607370280).send("Modded Server Crashed")
+                    user = await client.fetch_user(788175994607370280)
+                    await user.send("Modded Server Crashed")
             	javaStatus = 0
 
             	
