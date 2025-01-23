@@ -32,6 +32,8 @@ scozJavaAddress="java."+publicAddress+whitelisted
 scozBedrockAddress=publicAddress+whitelisted
 dharMinecraftAddress=publicAddress+":"+dharMinecraftPort+whitelisted
 
+pingWhenDharMinecraftIsOffline=True
+
 adminID=os.getenv("adminID")
 
 #loads environment variables from the .env file to hide them from public code
@@ -119,6 +121,7 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
 
 #minecraft-specific functions
 async def minecraftPing(category):
+    global globalMessage
     javaStatus = ""
     bedrockStatus = ""
     match(category):
@@ -154,6 +157,8 @@ async def minecraftPing(category):
             	javaStatus = await javaStatus.async_status()
             except:
             	javaStatus = 0
+                globalMessage.channel.send("<@788175994607370280> Minecraft is down")
+
             	
             return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Dharcraft 2077")
 
@@ -196,6 +201,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    global globalMessage
+    globalMessage=message
     if not message.content.startswith(prefix) and message.author != adminID:
         return
 
