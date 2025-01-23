@@ -249,14 +249,14 @@ async def supervisorLoop(quickUpdate=False):
             match(i):
                 case "scoz":
                     minecraftStatus = await minecraftPing(category="scoz")
-                    #palworldStatus = await palworldPing(category="scoz")
-                    #ping = [minecraftStatus,palworldStatus]
+                    palworldStatus = await palworldPing(category="scoz")
+                    ping = [minecraftStatus,palworldStatus]
                     for j in range( len( data[i])):
                         for k in data[i][j]:
                             #don't like the nesting, but this is the easiest way to get the channel IDs from the json array
                             supervisorChannel = await client.fetch_channel(f'{k}')
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
-                            await supervisorMessage.edit(content=None, embed=minecraftStatus)
+                            await supervisorMessage.edit(content=None, embed=ping)
                 case "dhar":
                     minecraftStatus = await minecraftPing(category="dhar")
                 
