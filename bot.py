@@ -159,7 +159,7 @@ async def minecraftPing(category):
             	javaStatus = 0
 
             	
-            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Dharcraft 2077")
+            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
 
 
     #rewrite format functions into category independent versions
@@ -175,7 +175,7 @@ async def palworldPing(category):
             username = os.getenv("SCOZPALWORLDADMINUSERNAME")
             password = os.getenv("SCOZPALWORLDADMINPASSWORD")
             api = PalworldAPI("http://"+address+":"+scozPalworldRESTPort, username, password)
-
+		
             server_info = await api.get_server_info() #dictionary, not json
             palworldPlayers = await api.get_player_list()# print all names in array again
             palworldSettings = await api.get_server_settings()
