@@ -17,7 +17,9 @@ load_dotenv()
 
 address=os.getenv("address")
 address2=os.getenv("address2")
-publicAddress=os.getenv("publicAddress")
+scozPublicAddress=os.getenv("scozPublicAddress")
+dharPublicAddress=os.getenv("dharPublicAddress")
+
 
 scozJavaPort=os.getenv("scozJavaPort")
 scozBedrockPort=os.getenv("scozBedrockPort")
@@ -27,10 +29,10 @@ dharMinecraftPort=os.getenv("dharMinecraftPort")
 
 whitelisted = " (whitelisted)"
 
-scozPalworldAddress=publicAddress+":"+scozPalworldPort+" (password protected)"
-scozJavaAddress="java."+publicAddress+whitelisted
-scozBedrockAddress=publicAddress+whitelisted
-dharMinecraftAddress=publicAddress+":"+dharMinecraftPort+whitelisted
+scozPalworldAddress=scozPublicAddress+":"+scozPalworldPort+" (password protected)"
+scozJavaAddress="java."+scozPublicAddress+whitelisted
+scozBedrockAddress=scozPublicAddress+whitelisted
+dharMinecraftAddress=dharPublicAddress+":"+dharMinecraftPort+whitelisted
 
 adminID=os.getenv("adminID")
 
@@ -152,7 +154,8 @@ async def minecraftPing(category):
             try:
             	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
             	javaStatus = await javaStatus.async_status()
-            except:
+            except Exception as e:
+            	print(e)
             	javaStatus = 0
 
             	
