@@ -77,17 +77,15 @@ def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=No
 
             #I placed the player count before the Java server header as it applies to both java and bedrock, and it feels wrong to have the
             #player count only under one or under both. And it has to be exist.
-            embed.add_field(name="Java", value="",inline=True)
+            embed.add_field(name="Java", value=f"{version}")
             #Putting the game version first as it's the most important for new players, and is important in general
-            embed.add_field(name="", value=f"{version}")
         else:
             embed.add_field(name="",value="Server Offline")
         
         #if bedrock is online
         if bedrock != 0:
-            embed.add_field(name="Bedrock", value="")
             version = bedrock.version.name
-            embed.add_field(name="  ", value=f"{version}")
+            embed.add_field(name="Bedrock", value=f"{version}")
             embed.add_field(name="",value=bedrockAddress,inline=False)
         else:
             embed.add_field(name="Bedrock",value="Server Offline")
