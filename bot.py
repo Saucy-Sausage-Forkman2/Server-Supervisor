@@ -32,7 +32,7 @@ whitelisted = " (whitelisted)"
 scozPalworldAddress=scozPublicAddress+":"+scozPalworldPort+" (password protected)"
 scozJavaAddress="java."+scozPublicAddress+whitelisted
 scozBedrockAddress=scozPublicAddress+whitelisted
-dharMinecraftAddress=dharPublicAddress+":"+dharMinecraftPort+whitelisted
+dharMinecraftAddress=dharPublicAddress+whitelisted
 
 adminID=os.getenv("adminID")
 
