@@ -119,6 +119,8 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
+dharMinecraftOfflineTrigger = False
+
 #minecraft-specific functions
 async def minecraftPing(category):
     javaStatus = ""
@@ -154,8 +156,12 @@ async def minecraftPing(category):
             try:
             	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
             	javaStatus = await javaStatus.async_status()
+                dharMinecraftOfflineTrigger = False
             except Exception as e:
             	print(e)
+                if dharMinecraftOfflineTrigger = False:
+                    dharMinecraftOfflineTrigger = True
+                    await client.fetch_user(788175994607370280).send("Modded Server Crashed")
             	javaStatus = 0
 
             	
