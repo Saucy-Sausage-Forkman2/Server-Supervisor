@@ -3,8 +3,7 @@ import discord
 from dotenv import load_dotenv
 from getTimestamp import time
 def scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress):
-    palworldTitle = "Palworld: Hawk Tuah the Tower"
-    palworldSettings = json.loads(palworldSettings)
+    palworldTitle = "Palworld: Hawk Tuah the Tower"	
     aliveColor = discord.Colour.blue()
     deadColor = discord.Colour.dark_red()
     try:   
@@ -16,6 +15,7 @@ def scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworld
 
     except:
         #this runs if there is no error, both in connecting to the server and in the dictionary returned by the library.
+        palworldSettings = json.loads(palworldSettings)
         palworldPlayers = palworldPlayers["players"]
         version = server_info['version']
         #myDescription=server_info['servername']

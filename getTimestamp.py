@@ -8,6 +8,8 @@ def time():
         pm = " PM"
     if hour >= 13:
         hour -= 12
+    if hour == 0:
+    	hour = 12
     if minute < 10:
         minute = "0" + str(minute)
 

@@ -256,7 +256,7 @@ async def supervisorLoop(quickUpdate=False):
                             #don't like the nesting, but this is the easiest way to get the channel IDs from the json array
                             supervisorChannel = await client.fetch_channel(f'{k}')
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
-                            await supervisorMessage.edit(content=None, embed=ping)
+                            await supervisorMessage.edit(content=None, embeds=ping)
                 case "dhar":
                     minecraftStatus = await minecraftPing(category="dhar")
                 
