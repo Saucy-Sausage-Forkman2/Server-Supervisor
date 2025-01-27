@@ -12,9 +12,10 @@ from palworld_api import PalworldAPI
 
 from formatMinecraft import formatMinecraft
 from scozFormatPalworld import scozFormatPalworld
+from formatArk import formatArk
 from helpEmbed import help
 
-import requests
+import a2s
 
 load_dotenv()
 
@@ -43,115 +44,10 @@ adminID=os.getenv("adminID")
 
 #loads environment variables from the .env file to hide them from public code
 #FILE MUST BE NAMED ".env"
-prefix = '.'
-   
-#end of variable declaration
 
-intents = discord.Intents.default()
-intents.message_content = True
-
-client = discord.Client(intents=intents)
-
-@client.event
-async def on_ready():
-    print(f'Logged in as {client.user}')
-    await supervisorLoop()
-
-client.run(os.getenv('TOKEN'))
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-
-@client.event
-async def on_message(message):
-    if not message.content.startswith(prefix) and message.author != adminID:
-        return
-
-    arguments = message.content[1:].split(" ")
-    command = arguments.pop(0)
-    if len(arguments) > 0:
-        argumentRaw = message.content[1:].split(" ", 1)[1]  
-
-    match command:
-        case "create":
-            if len(arguments) < 2:
-                await message.channel.send("Please provide a category.")
-                return
-            match(arguments[0]):
-                case "supervisor":
-                    await jsonCreateSupervisor(message, arguments[1])
-
-                case _:
-                    await message.channel.send(embed=help())
-
-        case "delete":
-            if len(arguments) < 2:
-                await message.channel.send("Please provide a category.")
-                return  
-            match(arguments[0]):
-                case "supervisor":
-                    await jsonRemoveSupervisor(message, arguments[1])
-
-                case _:
-                    await message.channel.send(embed=help())
-
-        case _:
-            await message.channel.send(embed=help())
-                
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-
-async def supervisorLoop(quickUpdate=False):
-    delayInSeconds = 60
-    while True:
-        json_file = openJson("status_messages")
-        data = json.load(json_file)
-
-        minecraftStatus = 0
-        palworldStatus = 0
-
-        for i in data:
-            match(i):
-                case "scoz":
-                    minecraftStatus = await minecraftPing(category="scoz")
-                    palworldStatus = await palworldPing(category="scoz")
-                    ping = [minecraftStatus,palworldStatus]
-                    for j in range( len( data[i])):
-                        for k in data[i][j]:
-                            #don't like the nesting, but this is the easiest way to get the channel IDs from the json array
-                            supervisorChannel = await client.fetch_channel(f'{k}')
-                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
-                            await supervisorMessage.edit(content=None, embeds=ping)
-                case "dhar":
-                    minecraftStatus = await minecraftPing(category="dhar")
-                
-                    for j in range( len( data[i])):
-                        for k in data[i][j]:
-                            #copy and paste saves lives
-                            supervisorChannel = await client.fetch_channel(f'{k}')
-                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
-                            await supervisorMessage.edit(content=None, embed=minecraftStatus)
-
-        if quickUpdate: return
-        await asyncio.sleep(delayInSeconds)
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -159,7 +55,6 @@ async def supervisorLoop(quickUpdate=False):
 #minecraft-specific functions
 
 async def minecraftPing(category):
-    global dharMinecraftOfflineTrigger
     javaStatus = ""
     bedrockStatus = ""
     match(category):
@@ -179,14 +74,14 @@ async def minecraftPing(category):
                 bedrockStatus = 0
 
             return formatMinecraft(javaStatus, 
-                                   category, 
-                                   scozJavaAddress, 
-                                   bedrockAddress=scozBedrockAddress,
-                                   bedrock=bedrockStatus, 
-                                   bothOnlineTitle="Bellycraft", 
-                                   onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
-                                   onlyBedrockTitle="Bellycraft: Java Unreachable", 
-                                   bothOfflineTitle="Bellycraft Offline")
+                category, 
+                scozJavaAddress, 
+                bedrockAddress=scozBedrockAddress,
+                bedrock=bedrockStatus, 
+                bothOnlineTitle="Bellycraft", 
+                onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
+                onlyBedrockTitle="Bellycraft: Java Unreachable", 
+                bothOfflineTitle="Bellycraft Offline")
 
         case "dhar":
             #Java Status Request
@@ -200,9 +95,6 @@ async def minecraftPing(category):
             	
             return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
 
-
-    #rewrite format functions into category independent versions
-    
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -224,23 +116,28 @@ async def palworldPing(category):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
-#Ark specific functions
+#Ark-specific functions
 
+async def ArkPing(category):
+    match(category):
+        case "scoz":
+            arkPortsToQuery = [7011]
+            arkServerCount = len(arkPortsToQuery)
+            #address, serverInfo, serverPlayers
+            arkServerQuery2DArray = [] 
+            
+            for arkPort in arkPortsToQuery:
+                arkAddress = (address2,arkPort)
+                arkServerInfo = await a2s.ainfo(arkAddress)
+                arkServerPlayers = await a2s.aplayers(arkAddress)
+                arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
+                
+            
+        
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -326,3 +223,116 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+async def supervisorLoop(quickUpdate=False):
+    delayInSeconds = 60
+    while True:
+        json_file = openJson("status_messages")
+        data = json.load(json_file)
+
+        minecraftStatus = 0
+        palworldStatus = 0
+
+        for i in data:
+            match(i):
+                case "scoz":
+                    minecraftStatus = await minecraftPing(category="scoz")
+                    palworldStatus = await palworldPing(category="scoz")
+                    ping = [minecraftStatus,palworldStatus]
+                    for j in range( len( data[i])):
+                        for k in data[i][j]:
+                            #don't like the nesting, but this is the easiest way to get the channel IDs from the json array
+                            supervisorChannel = await client.fetch_channel(f'{k}')
+                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
+                            await supervisorMessage.edit(content=None, embeds=ping)
+                case "dhar":
+                    minecraftStatus = await minecraftPing(category="dhar")
+                
+                    for j in range( len( data[i])):
+                        for k in data[i][j]:
+                            #copy and paste saves lives
+                            supervisorChannel = await client.fetch_channel(f'{k}')
+                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
+                            await supervisorMessage.edit(content=None, embed=minecraftStatus)
+
+        if quickUpdate: return
+        await asyncio.sleep(delayInSeconds)
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+prefix = '.'
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
+
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user}')
+    await ArkPing("scoz")
+    await supervisorLoop()
+
+client.run(os.getenv('TOKEN'))
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+
+@client.event
+async def on_message(message):
+    if not message.content.startswith(prefix) and message.author != adminID:
+        return
+
+    arguments = message.content[1:].split(" ")
+    command = arguments.pop(0)
+    if len(arguments) > 0:
+        argumentRaw = message.content[1:].split(" ", 1)[1]  
+
+    match command:
+        case "create":
+            if len(arguments) < 2:
+                await message.channel.send("Please provide a category.")
+                return
+            match(arguments[0]):
+                case "supervisor":
+                    await jsonCreateSupervisor(message, arguments[1])
+
+                case _:
+                    await message.channel.send(embed=help())
+
+        case "delete":
+            if len(arguments) < 2:
+                await message.channel.send("Please provide a category.")
+                return  
+            match(arguments[0]):
+                case "supervisor":
+                    await jsonRemoveSupervisor(message, arguments[1])
+
+                case _:
+                    await message.channel.send(embed=help())
+
+        case _:
+            await message.channel.send(embed=help())
+                
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
