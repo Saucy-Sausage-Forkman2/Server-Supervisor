@@ -1,5 +1,6 @@
 from mcstatus import JavaServer
 from mcstatus import BedrockServer
+
 import math
 import discord
 import os
@@ -12,6 +13,8 @@ from palworld_api import PalworldAPI
 from formatMinecraft import formatMinecraft
 from scozFormatPalworld import scozFormatPalworld
 from helpEmbed import help
+
+import requests
 
 load_dotenv()
 
@@ -43,158 +46,6 @@ adminID=os.getenv("adminID")
 prefix = '.'
    
 #end of variable declaration
-#------------------------------------------------------------------------
-def openJson(name):
-    if name[:-5] != ".json":
-        return open(f"{name}.json","r")
-    else:
-        return open(f"{name}","r")
-
-#------------------------------------------------------------------------
-
-def writeJson(data, name):
-    if name[:-5] != ".json":
-        with open(f"{name}.json","r+") as json_file:
-            json_file.seek(0)
-            json_file.truncate()
-            json.dump(data, json_file, indent=4)
-            json_file.close()
-        return
-    else:
-        with open(f"{name}","r+") as json_file:
-            json_file.seek(0)
-            json_file.truncate()
-            json.dump(data, json_file, indent=4)
-            json_file.close()
-        return
-
-#------------------------------------------------------------------------
-
-async def jsonCreateSupervisor(message, category):
-    category = f"{category}"
-    pendingMessage = await message.channel.send("Pinging...")
-
-    try:
-        await jsonRemoveSupervisor(message,category,shouldPrint=False)
-    except Exception as e: print(e)
-        
-    json_file = openJson("status_messages")
-    data = json.load(json_file)
-
-    data[category].append({pendingMessage.channel.id:pendingMessage.id})
-    writeJson(data,"status_messages")
-
-    await supervisorLoop(quickUpdate=True)
-
-#------------------------------------------------------------------------
-
-async def jsonRemoveSupervisor(message, category,shouldPrint=True):
-    category = f"{category}"
-
-    json_file = openJson("status_messages")
-    data = json.load(json_file)
-
-    for i in range(len(data[category])):
-        try:
-
-            try:
-                dontcrash = await client.fetch_channel(message.channel.id)
-                dontcrash = await dontcrash.fetch_message(data[category][i][f"{message.channel.id}"])
-                await dontcrash.delete()
-            except Exception as e: 
-                print(e)
-
-            del data[category][i][f'{message.channel.id}']
-        except Exception as e: 
-            print(e)
-            continue
-        else:
-            #The strategy of using seek(0) to overwrite a file only works if the new text is equally long or longer than what already exists, otherwise
-            #the difference will be appended to the end of the file. The solution is to truncate it from the beginning, effectively erasing it.
-            writeJson(data,"status_messages")
-            if shouldPrint: await message.channel.send("Supervisor disabled.")
-            return
-    if shouldPrint: await message.channel.send("There is no active supervisor in this channel.")
-    return
-            
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-
-dharMinecraftOfflineTrigger = False
-
-#minecraft-specific functions
-async def minecraftPing(category):
-    global dharMinecraftOfflineTrigger
-    javaStatus = ""
-    bedrockStatus = ""
-    match(category):
-        case "scoz":
-            #Java Status Request
-            try:
-                javaStatus = await JavaServer.async_lookup(address+":"+scozJavaPort)
-                javaStatus = await javaStatus.async_status()
-            except:
-                javaStatus = 0
-
-            #Bedrock Status Request
-            try:
-                bedrockStatus = BedrockServer.lookup(address+":"+scozBedrockPort)
-                bedrockStatus = await bedrockStatus.async_status()
-            except:
-                bedrockStatus = 0
-
-            return formatMinecraft(javaStatus, 
-                                   category, 
-                                   scozJavaAddress, 
-                                   bedrockAddress=scozBedrockAddress,
-                                   bedrock=bedrockStatus, 
-                                   bothOnlineTitle="Bellycraft", 
-                                   onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
-                                   onlyBedrockTitle="Bellycraft: Java Unreachable", 
-                                   bothOfflineTitle="Bellycraft Offline")
-
-        case "dhar":
-            #Java Status Request
-            try:
-            	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
-            	javaStatus = await javaStatus.async_status()
-            	dharMinecraftOfflineTrigger = False
-            except Exception as e:
-            	print(e)
-            	if dharMinecraftOfflineTrigger == False:
-                    dharMinecraftOfflineTrigger = True
-                    user = await client.fetch_user(788175994607370280)
-                    await user.send("Modded Server Crashed")
-            	javaStatus = 0
-
-            	
-            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
-
-
-    #rewrite format functions into category independent versions
-    
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#Palworld-Specific Functions
-
-async def palworldPing(category):
-    match(category):
-        case "scoz":
-            username = os.getenv("SCOZPALWORLDADMINUSERNAME")
-            password = os.getenv("SCOZPALWORLDADMINPASSWORD")
-            api = PalworldAPI("http://"+address2+":"+scozPalworldRESTPort, username, password)
-            
-            server_info = await api.get_server_info() #dictionary, not json
-            palworldPlayers = await api.get_player_list()# print all names in array again
-            palworldSettings = await api.get_server_settings()
-
-            return scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress)
-
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -206,7 +57,12 @@ async def on_ready():
     print(f'Logged in as {client.user}')
     await supervisorLoop()
 
+client.run(os.getenv('TOKEN'))
+
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
 
 @client.event
 async def on_message(message):
@@ -245,6 +101,9 @@ async def on_message(message):
             await message.channel.send(embed=help())
                 
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
 
 async def supervisorLoop(quickUpdate=False):
     delayInSeconds = 60
@@ -281,5 +140,189 @@ async def supervisorLoop(quickUpdate=False):
         await asyncio.sleep(delayInSeconds)
 
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
 
-client.run(os.getenv('TOKEN'))
+
+
+
+
+
+
+
+
+
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#minecraft-specific functions
+
+async def minecraftPing(category):
+    global dharMinecraftOfflineTrigger
+    javaStatus = ""
+    bedrockStatus = ""
+    match(category):
+        case "scoz":
+            #Java Status Request
+            try:
+                javaStatus = await JavaServer.async_lookup(address+":"+scozJavaPort)
+                javaStatus = await javaStatus.async_status()
+            except:
+                javaStatus = 0
+
+            #Bedrock Status Request
+            try:
+                bedrockStatus = BedrockServer.lookup(address+":"+scozBedrockPort)
+                bedrockStatus = await bedrockStatus.async_status()
+            except:
+                bedrockStatus = 0
+
+            return formatMinecraft(javaStatus, 
+                                   category, 
+                                   scozJavaAddress, 
+                                   bedrockAddress=scozBedrockAddress,
+                                   bedrock=bedrockStatus, 
+                                   bothOnlineTitle="Bellycraft", 
+                                   onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
+                                   onlyBedrockTitle="Bellycraft: Java Unreachable", 
+                                   bothOfflineTitle="Bellycraft Offline")
+
+        case "dhar":
+            #Java Status Request
+            try:
+            	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
+            	javaStatus = await javaStatus.async_status()
+            except Exception as e:
+            	print(e)
+            	javaStatus = 0
+
+            	
+            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
+
+
+    #rewrite format functions into category independent versions
+    
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#Palworld-Specific Functions
+
+async def palworldPing(category):
+    match(category):
+        case "scoz":
+            username = os.getenv("SCOZPALWORLDADMINUSERNAME")
+            password = os.getenv("SCOZPALWORLDADMINPASSWORD")
+            api = PalworldAPI("http://"+address2+":"+scozPalworldRESTPort, username, password)
+            
+            server_info = await api.get_server_info() #dictionary, not json
+            palworldPlayers = await api.get_player_list()# print all names in array again
+            palworldSettings = await api.get_server_settings()
+
+            return scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress)
+
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#Ark specific functions
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+def openJson(name):
+    if name[:-5] != ".json":
+        return open(f"{name}.json","r")
+    else:
+        return open(f"{name}","r")
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+def writeJson(data, name):
+    if name[:-5] != ".json":
+        with open(f"{name}.json","r+") as json_file:
+            json_file.seek(0)
+            json_file.truncate()
+            json.dump(data, json_file, indent=4)
+            json_file.close()
+        return
+    else:
+        with open(f"{name}","r+") as json_file:
+            json_file.seek(0)
+            json_file.truncate()
+            json.dump(data, json_file, indent=4)
+            json_file.close()
+        return
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+async def jsonCreateSupervisor(message, category):
+    category = f"{category}"
+    pendingMessage = await message.channel.send("Pinging...")
+
+    try:
+        await jsonRemoveSupervisor(message,category,shouldPrint=False)
+    except Exception as e: print(e)
+        
+    json_file = openJson("status_messages")
+    data = json.load(json_file)
+
+    data[category].append({pendingMessage.channel.id:pendingMessage.id})
+    writeJson(data,"status_messages")
+
+    await supervisorLoop(quickUpdate=True)
+
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+
+async def jsonRemoveSupervisor(message, category,shouldPrint=True):
+    category = f"{category}"
+
+    json_file = openJson("status_messages")
+    data = json.load(json_file)
+
+    for i in range(len(data[category])):
+        try:
+
+            try:
+                dontcrash = await client.fetch_channel(message.channel.id)
+                dontcrash = await dontcrash.fetch_message(data[category][i][f"{message.channel.id}"])
+                await dontcrash.delete()
+            except Exception as e: 
+                print(e)
+
+            del data[category][i][f'{message.channel.id}']
+        except Exception as e: 
+            print(e)
+            continue
+        else:
+            #The strategy of using seek(0) to overwrite a file only works if the new text is equally long or longer than what already exists, otherwise
+            #the difference will be appended to the end of the file. The solution is to truncate it from the beginning, effectively erasing it.
+            writeJson(data,"status_messages")
+            if shouldPrint: await message.channel.send("Supervisor disabled.")
+            return
+    if shouldPrint: await message.channel.send("There is no active supervisor in this channel.")
+    return
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
