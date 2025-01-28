@@ -1,46 +1,15 @@
-from mcstatus import JavaServer
-from mcstatus import BedrockServer
-
 import math
 import discord
 import os
 import asyncio
 import json
-from dotenv import load_dotenv
 import asyncio
-from palworld_api import PalworldAPI
-
-from formatMinecraft import formatMinecraft
-from scozFormatPalworld import scozFormatPalworld
-from formatArk import formatArk
-from helpEmbed import help
-
 import a2s
 
-load_dotenv()
-
-address=os.getenv("address")
-address2=os.getenv("address2")
-scozPublicAddress=os.getenv("scozPublicAddress")
-dharPublicAddress=os.getenv("dharPublicAddress")
+from helpEmbed import help
+from pingCollection import minecraftPing,palworldPing,arkPing
 
 
-scozJavaPort=os.getenv("scozJavaPort")
-scozBedrockPort=os.getenv("scozBedrockPort")
-scozPalworldRESTPort=os.getenv("scozPalworldRESTPort")
-scozPalworldPort=os.getenv("scozPalworldPort")
-dharMinecraftPort=os.getenv("dharMinecraftPort")
-
-whitelisted = " (whitelisted)"
-
-minecraftSubDomain="mc."
-
-scozPalworldAddress=scozPublicAddress+":"+scozPalworldPort+" (password protected)"
-scozJavaAddress=minecraftSubDomain+scozPublicAddress+whitelisted
-scozBedrockAddress=minecraftSubDomain+scozPublicAddress+whitelisted
-dharMinecraftAddress=minecraftSubDomain+dharPublicAddress+whitelisted
-
-adminID=os.getenv("adminID")
 
 #loads environment variables from the .env file to hide them from public code
 #FILE MUST BE NAMED ".env"
@@ -49,95 +18,6 @@ adminID=os.getenv("adminID")
 #-------------------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#minecraft-specific functions
-
-async def minecraftPing(category):
-    javaStatus = ""
-    bedrockStatus = ""
-    match(category):
-        case "scoz":
-            #Java Status Request
-            try:
-                javaStatus = await JavaServer.async_lookup(address+":"+scozJavaPort)
-                javaStatus = await javaStatus.async_status()
-            except:
-                javaStatus = 0
-
-            #Bedrock Status Request
-            try:
-                bedrockStatus = BedrockServer.lookup(address+":"+scozBedrockPort)
-                bedrockStatus = await bedrockStatus.async_status()
-            except:
-                bedrockStatus = 0
-
-            return formatMinecraft(javaStatus, 
-                category, 
-                scozJavaAddress, 
-                bedrockAddress=scozBedrockAddress,
-                bedrock=bedrockStatus, 
-                bothOnlineTitle="Bellycraft", 
-                onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
-                onlyBedrockTitle="Bellycraft: Java Unreachable", 
-                bothOfflineTitle="Bellycraft Offline")
-
-        case "dhar":
-            #Java Status Request
-            try:
-            	javaStatus = await JavaServer.async_lookup(address2+":"+dharMinecraftPort)
-            	javaStatus = await javaStatus.async_status()
-            except Exception as e:
-            	print(e)
-            	javaStatus = 0
-
-            	
-            return formatMinecraft(javaStatus, category, dharMinecraftAddress, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
-
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#Palworld-Specific Functions
-
-async def palworldPing(category):
-    match(category):
-        case "scoz":
-            username = os.getenv("SCOZPALWORLDADMINUSERNAME")
-            password = os.getenv("SCOZPALWORLDADMINPASSWORD")
-            api = PalworldAPI("http://"+address2+":"+scozPalworldRESTPort, username, password)
-            
-            server_info = await api.get_server_info() #dictionary, not json
-            palworldPlayers = await api.get_player_list()# print all names in array again
-            palworldSettings = await api.get_server_settings()
-
-            return scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress)
-
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#Ark-specific functions
-
-async def ArkPing(category):
-    match(category):
-        case "scoz":
-            arkPortsToQuery = [7011]
-            arkServerCount = len(arkPortsToQuery)
-            #address, serverInfo, serverPlayers
-            arkServerQuery2DArray = [] 
-            
-            for arkPort in arkPortsToQuery:
-                arkAddress = (address2,arkPort)
-                arkServerInfo = await a2s.ainfo(arkAddress)
-                arkServerPlayers = await a2s.aplayers(arkAddress)
-                arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
-                
-            
-        
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -185,7 +65,7 @@ async def jsonCreateSupervisor(message, category):
 
     data[category].append({pendingMessage.channel.id:pendingMessage.id})
     writeJson(data,"status_messages")
-
+    print(data)
     await supervisorLoop(quickUpdate=True)
 
 #------------------------------------------------------------------------
@@ -208,7 +88,7 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
             except Exception as e: 
                 print(e)
 
-            del data[category][i][f'{message.channel.id}']
+            del data[category][i]
         except Exception as e: 
             print(e)
             continue
@@ -257,6 +137,14 @@ async def supervisorLoop(quickUpdate=False):
                             supervisorChannel = await client.fetch_channel(f'{k}')
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
                             await supervisorMessage.edit(content=None, embed=minecraftStatus)
+                case "dwarf":
+                    arkStatus = await arkPing("dwarf")
+                    for j in range( len( data[i])):
+                        for k in data[i][j]:
+                            #copy and paste saves lives
+                            supervisorChannel = await client.fetch_channel(f'{k}')
+                            supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
+                            await supervisorMessage.edit(content=None, embed=arkStatus)
 
         if quickUpdate: return
         await asyncio.sleep(delayInSeconds)
@@ -275,10 +163,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user}')
-    await ArkPing("scoz")
     await supervisorLoop()
-
-client.run(os.getenv('TOKEN'))
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -287,9 +172,10 @@ client.run(os.getenv('TOKEN'))
 
 @client.event
 async def on_message(message):
+    print("s")
     if not message.content.startswith(prefix) and message.author != adminID:
         return
-
+    
     arguments = message.content[1:].split(" ")
     command = arguments.pop(0)
     if len(arguments) > 0:
@@ -328,7 +214,7 @@ async def on_message(message):
 
 
 
-
+client.run(os.getenv('TOKEN'))
 
 
 

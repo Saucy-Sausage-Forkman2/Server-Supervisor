@@ -2,20 +2,15 @@ import asyncio
 import discord
 from getTimestamp import time
 
-async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline"):
+async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",arkAllServersOnlineTitle="Ark"):
     red = discord.Colour.red()
     green = discord.Colour.green()
     arkFormattedPlayers = ""
     embed = 0
-
-    #formatting username text, if there are players online
-    if arkServerPlayers != []:
-        pass
     
-    arkEmbedFieldTemplate = ""
     arkEmbedFields = []
 
-    #if there was an error, we should stop early
+    #if there was an error, we should make an exception and skip code
     if arkServerQuery2DArray == []:
         embed = discord.Embed(
             title=arkAllServersOfflineTitle,
@@ -27,19 +22,28 @@ async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offli
         
         for arkServerInfoArray in arkServerQuery2DArray:
             #0 address, 1 serverInfo, 2 serverPlayers
-            arkServerInfo = arkServerInfoArray[0]
+            arkServerInfo = arkServerInfoArray[1]
             #Somehow cleanly format all of these values into one or two fields in the embed, NOT one embed per server!
 
             arkServerName = arkServerInfo.server_name
             arkMapName = arkServerInfo.map_name
             arkPlayerCount = arkServerInfo.player_count
             arkMaxPlayers = arkServerInfo.max_players
-            arkIsPasswordProtected = arkServerInfo.password_protected
 
+            #formatting username text, if there are players online
+            for player in arkServerInfoArray[2]:
+                arkFormattedPlayers += " " + player.name + ","
+            arkFormattedPlayers=arkFormattedPlayers[:-1]
+            #arkServerName is cut twelve short to remove version number
+            arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount}/{arkMaxPlayers}"
+            arkEmbedFields.append([arkEmbedFieldTemplate,arkFormattedPlayers])
 
+        embed = discord.Embed(
+            title=arkAllServersOnlineTitle,
+            color=green)
+        for arkEmbedPair in arkEmbedFields:
+            embed.add_field(name=arkEmbedPair[0],value=arkEmbedPair[1])
 
-
-        pass
         
     embed.set_footer(text=time())
     return embed
