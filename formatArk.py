@@ -35,6 +35,9 @@ async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offli
                 arkFormattedPlayers += " " + player.name + ","
             arkFormattedPlayers=arkFormattedPlayers[:-1]
             #arkServerName is cut twelve short to remove version number
+            match(arkServerName):
+                case "TheIsland":
+                    arkServerName="The Island"
             arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount}/{arkMaxPlayers}"
             arkEmbedFields.append([arkEmbedFieldTemplate,arkFormattedPlayers])
 
