@@ -1,8 +1,8 @@
 import json
 import discord
 from dotenv import load_dotenv
-from getTimestamp import time
-def scozFormatPalworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress):
+from GetTimestamp import time
+def scoz_format_palworld(server_info,palworldSettings,palworldPlayers,scozPalworldAddress):
     palworldTitle = "Bellyworld"	
     aliveColor = discord.Colour.blue()
     deadColor = discord.Colour.dark_red()

@@ -6,10 +6,13 @@ import json
 import asyncio
 import a2s
 
-from helpEmbed import help
-from pingCollection import minecraftPing,palworldPing,arkPing
+from HelpEmbed import generate_help_embed
+from PingCollection import minecraft_ping,palworld_ping,ark_ping
 
 
+ADMIN_ID=os.getenv("ADMIN_ID")
+
+jsonFileName="StatusMessages"
 
 #loads environment variables from the .env file to hide them from public code
 #FILE MUST BE NAMED ".env"
@@ -22,7 +25,7 @@ from pingCollection import minecraftPing,palworldPing,arkPing
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
-def openJson(name):
+def open_json(name):
     if name[:-5] != ".json":
         return open(f"{name}.json","r")
     else:
@@ -32,7 +35,7 @@ def openJson(name):
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
-def writeJson(data, name):
+def write_json(data, name):
     if name[:-5] != ".json":
         with open(f"{name}.json","r+") as json_file:
             json_file.seek(0)
@@ -52,30 +55,30 @@ def writeJson(data, name):
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
-async def jsonCreateSupervisor(message, category):
+async def json_create_supervisor(message, category):
     category = f"{category}"
     pendingMessage = await message.channel.send("Pinging...")
 
     try:
-        await jsonRemoveSupervisor(message,category,shouldPrint=False)
+        await json_remove_supervisor(message,category,shouldPrint=False)
     except Exception as e: print(e)
         
-    json_file = openJson("status_messages")
+    json_file = open_json(jsonFileName)
     data = json.load(json_file)
 
     data[category].append({pendingMessage.channel.id:pendingMessage.id})
-    writeJson(data,"status_messages")
+    write_json(data,jsonFileName)
     print(data)
-    await supervisorLoop(quickUpdate=True)
+    await supervisor_loop(quickUpdate=True)
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 
-async def jsonRemoveSupervisor(message, category,shouldPrint=True):
+async def json_remove_supervisor(message, category,shouldPrint=True):
     category = f"{category}"
 
-    json_file = openJson("status_messages")
+    json_file = open_json(jsonFileName)
     data = json.load(json_file)
 
     for i in range(len(data[category])):
@@ -95,7 +98,7 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
         else:
             #The strategy of using seek(0) to overwrite a file only works if the new text is equally long or longer than what already exists, otherwise
             #the difference will be appended to the end of the file. The solution is to truncate it from the beginning, effectively erasing it.
-            writeJson(data,"status_messages")
+            write_json(data,jsonFileName)
             if shouldPrint: await message.channel.send("Supervisor disabled.")
             return
     if shouldPrint: await message.channel.send("There is no active supervisor in this channel.")
@@ -107,10 +110,10 @@ async def jsonRemoveSupervisor(message, category,shouldPrint=True):
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
-async def supervisorLoop(quickUpdate=False):
+async def supervisor_loop(quickUpdate=False):
     delayInSeconds = 60
     while True:
-        json_file = openJson("status_messages")
+        json_file = open_json(jsonFileName)
         data = json.load(json_file)
 
         minecraftStatus = 0
@@ -119,8 +122,8 @@ async def supervisorLoop(quickUpdate=False):
         for i in data:
             match(i):
                 case "scoz":
-                    minecraftStatus = await minecraftPing(category="scoz")
-                    palworldStatus = await palworldPing(category="scoz")
+                    minecraftStatus = await minecraft_ping(category="scoz")
+                    palworldStatus = await palworld_ping(category="scoz")
                     ping = [minecraftStatus,palworldStatus]
                     for j in range( len( data[i])):
                         for k in data[i][j]:
@@ -129,7 +132,7 @@ async def supervisorLoop(quickUpdate=False):
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
                             await supervisorMessage.edit(content=None, embeds=ping)
                 case "dhar":
-                    minecraftStatus = await minecraftPing(category="dhar")
+                    minecraftStatus = await minecraft_ping(category="dhar")
                 
                     for j in range( len( data[i])):
                         for k in data[i][j]:
@@ -138,7 +141,7 @@ async def supervisorLoop(quickUpdate=False):
                             supervisorMessage = await supervisorChannel.fetch_message(data[i][j][k])
                             await supervisorMessage.edit(content=None, embed=minecraftStatus)
                 case "dwarf":
-                    arkStatus = await arkPing("dwarf")
+                    arkStatus = await ark_ping("dwarf")
                     for j in range( len( data[i])):
                         for k in data[i][j]:
                             #copy and paste saves lives
@@ -163,7 +166,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f'Logged in as {client.user}')
-    await supervisorLoop()
+    await supervisor_loop()
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -172,8 +175,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    print("s")
-    if not message.content.startswith(prefix) and message.author != adminID:
+    if not message.content.startswith(prefix) and message.author.id != ADMIN_ID:
         return
     
     arguments = message.content[1:].split(" ")
@@ -188,10 +190,10 @@ async def on_message(message):
                 return
             match(arguments[0]):
                 case "supervisor":
-                    await jsonCreateSupervisor(message, arguments[1])
+                    await json_create_supervisor(message, arguments[1])
 
                 case _:
-                    await message.channel.send(embed=help())
+                    await message.channel.send(embed=generate_help_embed())
 
         case "delete":
             if len(arguments) < 2:
@@ -199,13 +201,13 @@ async def on_message(message):
                 return  
             match(arguments[0]):
                 case "supervisor":
-                    await jsonRemoveSupervisor(message, arguments[1])
+                    await json_remove_supervisor(message, arguments[1])
 
                 case _:
-                    await message.channel.send(embed=help())
+                    await message.channel.send(embed=generate_help_embed())
 
         case _:
-            await message.channel.send(embed=help())
+            await message.channel.send(embed=generate_help_embed())
                 
 
 #------------------------------------------------------------------------

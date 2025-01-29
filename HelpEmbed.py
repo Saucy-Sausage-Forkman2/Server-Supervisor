@@ -1,5 +1,5 @@
 import discord
-def help():
+def generate_help_embed():
     embed = discord.Embed(
         title="Help",
         color=discord.Colour.dark_gray()

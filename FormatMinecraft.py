@@ -1,6 +1,6 @@
 import discord
-from getTimestamp import time
-def formatMinecraft(java, category, javaAddress, bedrockAddress=None, bedrock=None, bothOnlineTitle="Minecraft Server", onlyJavaTitle="Bedrock Unreachable", onlyBedrockTitle="Java Unreachable", bothOfflineTitle="Minecraft Offline"):
+from GetTimestamp import time
+def format_minecraft(java, category, javaAddress, bedrockAddress=None, bedrock=None, bothOnlineTitle="Minecraft Server", onlyJavaTitle="Bedrock Unreachable", onlyBedrockTitle="Java Unreachable", bothOfflineTitle="Minecraft Offline"):
     zeroServerColor = discord.Colour.red()
     oneServerColor = discord.Colour.yellow()
     twoServerColor = discord.Colour.green()

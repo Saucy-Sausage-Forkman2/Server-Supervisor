@@ -1,8 +1,8 @@
 import asyncio
 import discord
-from getTimestamp import time
+from GetTimestamp import time
 
-async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",arkAllServersOnlineTitle="Ark"):
+async def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",arkAllServersOnlineTitle="Ark"):
     red = discord.Colour.red()
     green = discord.Colour.green()
     arkFormattedPlayers = ""
@@ -28,7 +28,6 @@ async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offli
             arkServerName = arkServerInfo.server_name
             arkMapName = arkServerInfo.map_name
             arkPlayerCount = arkServerInfo.player_count
-            arkMaxPlayers = arkServerInfo.max_players
 
             #formatting username text, if there are players online
             for player in arkServerInfoArray[2]:
@@ -38,7 +37,7 @@ async def formatArk(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offli
             match(arkServerName):
                 case "TheIsland":
                     arkServerName="The Island"
-            arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount}/{arkMaxPlayers}"
+            arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount}"
             arkEmbedFields.append([arkEmbedFieldTemplate,arkFormattedPlayers])
 
         embed = discord.Embed(
