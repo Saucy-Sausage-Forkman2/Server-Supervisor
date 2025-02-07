@@ -4,11 +4,10 @@ from mcstatus import JavaServer
 from mcstatus import BedrockServer
 from palworld_api import PalworldAPI
 import a2s
-from FormatMinecraft import format_minecraft
-from ScozFormatPalworld import scoz_format_palworld
-from FormatArk import format_ark
-
 from dotenv import load_dotenv
+
+from ResponseFormatFunctions import format_ark, format_minecraft, scoz_format_palworld
+
 
 load_dotenv()
 
@@ -33,22 +32,17 @@ SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 SCOZ_BEDROCK_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 
-ADMIN_ID=os.getenv("ADMIN_ID")
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#minecraft-specific functions
-
 async def minecraft_ping(category):
     javaStatus = ""
     bedrockStatus = ""
+
     match(category):
         case "scoz":
             #Java Status Request
             try:
                 javaStatus = await JavaServer.async_lookup(ADDRESS+":"+SCOZ_JAVA_PORT)
                 javaStatus = await javaStatus.async_status()
+
             except:
                 javaStatus = 0
 
@@ -56,6 +50,7 @@ async def minecraft_ping(category):
             try:
                 bedrockStatus = BedrockServer.lookup(ADDRESS+":"+SCOZ_BEDROCK_PORT)
                 bedrockStatus = await bedrockStatus.async_status()
+
             except:
                 bedrockStatus = 0
 
@@ -74,6 +69,7 @@ async def minecraft_ping(category):
             try:
             	javaStatus = await JavaServer.async_lookup(ADDRESS_2+":"+DHAR_MINECRAFT_PORT)
             	javaStatus = await javaStatus.async_status()
+
             except Exception as e:
             	print(e)
             	javaStatus = 0
@@ -81,10 +77,6 @@ async def minecraft_ping(category):
             	
             return format_minecraft(javaStatus, category, DHAR_MINECRAFT_ADDRESS, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#Palworld-Specific Functions
 
 async def palworld_ping(category):
     match(category):
@@ -97,34 +89,26 @@ async def palworld_ping(category):
 
             return scoz_format_palworld(server_info,palworldSettings,palworldPlayers,SCOZ_PALWORLD_ADDRESS)
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------
-#Ark-specific functions
 
 async def ark_ping(category):
     match(category):
         case "dwarf":
             arkPortsToQuery = [7011]
             arkServerCount = len(arkPortsToQuery)
-            #player = a2s.players(arkAddress)[0]
-            #print(f"{player.name}, {math.trunc(player.duration/60)} minutes")
-            #ADDRESS, serverInfo, serverPlayers
             arkServerQuery2DArray = [] 
+
             for arkPort in arkPortsToQuery:
                 try:
                     arkAddress = (ADDRESS_2,arkPort)
+
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
                     arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
+
                 except Exception as e:
                     print(e)
                     continue
-            return await format_ark(arkServerQuery2DArray)
-                
-            
-        
 
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
+            return format_ark(arkServerQuery2DArray)
+
+
