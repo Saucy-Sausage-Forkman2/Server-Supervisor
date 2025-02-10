@@ -58,7 +58,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
         for arkServerInfoArray in arkServerQuery2DArray:
 
             if type(arkServerInfoArray) != list:
-                arkEmbedFields.append(arkServerInfoArray)
+                arkEmbedFields.append(str(arkServerInfoArray))
                 continue
 
             #0 address, 1 serverInfo, 2 serverPlayers

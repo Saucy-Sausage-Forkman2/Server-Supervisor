@@ -31,7 +31,7 @@ SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 
 #7000 - The Island
-arkPortsToQuery = [7000]
+arkPortsToQuery = [7001]
 
 async def minecraft_ping(category):
     """Contacts the Minecraft server of the given category, and returns a discord embed.
@@ -120,6 +120,6 @@ async def ark_ping(category):
                     arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
 
                 except Exception as e:
-                    arkServerQuery2DArray.append(e)
+                    arkServerQuery2DArray.append(f"Server {arkPortsToQuery.index(arkPort)+1} Offline")
 
             return format_ark(arkServerQuery2DArray)
