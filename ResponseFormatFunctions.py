@@ -81,7 +81,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
             )
 
         for arkEmbedPair in arkEmbedFields:
-            embed.add_field(name=arkEmbedPair,value="")
+            embed.add_field(name=arkEmbedPair,value="", inline=False)
 
         
     embed.set_footer(text=time())
