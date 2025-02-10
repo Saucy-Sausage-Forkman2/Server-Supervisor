@@ -3,9 +3,19 @@ import json
 jsonFileName="StatusMessages.json"
 
 def json_open():
+    """Opens the json file that points to supervisor messages
+
+    Returns:
+        File: Json file: [Category][Channel ID] = Message ID
+    """
     return open(f"{jsonFileName}","r")
 
 def json_write(data):
+    """Overwrites the json file. Returns nothing.
+
+    Args:
+        data (json): Output of json.dumps
+    """
     with open(f"{jsonFileName}","r+") as json_file:
         json_file.seek(0)
         json_file.truncate()
@@ -15,6 +25,12 @@ def json_write(data):
     return
 
 async def json_create_supervisor(message, category):
+    """Creates a supervisor of the specified category with the inputted message.
+
+    Args:
+        message (discord.message): _description_
+        category (String): _description_
+    """
     category = f"{category}"
     pendingMessage = await message.channel.send("Pinging...")
 

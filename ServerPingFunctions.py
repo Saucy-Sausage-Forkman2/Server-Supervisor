@@ -2,12 +2,10 @@ import os
 import discord
 from mcstatus import JavaServer
 from mcstatus import BedrockServer
-from palworld_api import PalworldAPI
 import a2s
 from dotenv import load_dotenv
 
-from ResponseFormatFunctions import format_ark, format_minecraft, scoz_format_palworld
-
+from ResponseFormatFunctions import format_ark, format_minecraft, format_palworld
 
 load_dotenv()
 
@@ -18,19 +16,16 @@ DHAR_PUBLIC_ADDRESS=os.getenv("DHAR_PUBLIC_ADDRESS")
 
 SCOZ_JAVA_PORT=os.getenv("SCOZ_JAVA_PORT")
 SCOZ_BEDROCK_PORT=os.getenv("SCOZ_BEDROCK_PORT")
-SCOZ_PALWORLD_REST_PORT=os.getenv("SCOZ_PALWORLD_REST_PORT")
 SCOZ_PALWORLD_PORT=os.getenv("SCOZ_PALWORLD_PORT")
 DHAR_MINECRAFT_PORT=os.getenv("DHAR_MINECRAFT_PORT")
-
-SCOZ_PALWORLD_ADMIN_USERNAME = os.getenv("SCOZ_PALWORLD_ADMIN_USERNAME")
-SCOZ_PALWORLD_ADMIN_PASSWORD = os.getenv("SCOZ_PALWORLD_ADMIN_PASSWORD")
 
 MINECRAFT_SUB_DOMAIN="mc."
 
 SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
-SCOZ_BEDROCK_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
+
+arkPortsToQuery = [7011]
 
 async def minecraft_ping(category):
     javaStatus = ""
@@ -38,31 +33,19 @@ async def minecraft_ping(category):
 
     match(category):
         case "scoz":
-            #Java Status Request
             try:
                 javaStatus = await JavaServer.async_lookup(ADDRESS+":"+SCOZ_JAVA_PORT)
                 javaStatus = await javaStatus.async_status()
 
-            except:
-                javaStatus = 0
+            except Exception as e:
+                javaStatus = e
 
-            #Bedrock Status Request
-            try:
-                bedrockStatus = BedrockServer.lookup(ADDRESS+":"+SCOZ_BEDROCK_PORT)
-                bedrockStatus = await bedrockStatus.async_status()
-
-            except:
-                bedrockStatus = 0
-
-            return format_minecraft(javaStatus, 
+            return format_minecraft(
+                javaStatus, 
                 category, 
                 SCOZ_JAVA_ADDRESS, 
-                bedrockAddress=SCOZ_BEDROCK_ADDRESS,
-                bedrock=bedrockStatus, 
-                bothOnlineTitle="Bellycraft", 
-                onlyJavaTitle="Bellycraft: Bedrock Unreachable", 
-                onlyBedrockTitle="Bellycraft: Java Unreachable", 
-                bothOfflineTitle="Bellycraft Offline")
+                javaOnlineTitle="Bellycraft - Java and Bedrock", 
+                javaOfflineTitle="Bellycraft Offline")
 
         case "dhar":
             #Java Status Request
@@ -71,29 +54,31 @@ async def minecraft_ping(category):
             	javaStatus = await javaStatus.async_status()
 
             except Exception as e:
-            	print(e)
-            	javaStatus = 0
+            	javaStatus = e
 
-            	
-            return format_minecraft(javaStatus, category, DHAR_MINECRAFT_ADDRESS, onlyJavaTitle="Mexican Border RP 2: Dhar Harder")
-
+            return format_minecraft(
+                javaStatus, 
+                category, 
+                DHAR_MINECRAFT_ADDRESS, 
+                javaOnlineTitle="Mexican Border RP 2: Dhar Harder")
 
 async def palworld_ping(category):
     match(category):
         case "scoz":
-            api = PalworldAPI("http://"+ADDRESS_2+":"+SCOZ_PALWORLD_REST_PORT, SCOZ_PALWORLD_ADMIN_USERNAME, SCOZ_PALWORLD_ADMIN_PASSWORD)
-            
-            server_info = await api.get_server_info() #dictionary, not json
-            palworldPlayers = await api.get_player_list()# print all names in array again
-            palworldSettings = await api.get_server_settings()
+            try:
+                palworldAddressTuple = (ADDRESS_2, SCOZ_PALWORLD_PORT)
 
-            return scoz_format_palworld(server_info,palworldSettings,palworldPlayers,SCOZ_PALWORLD_ADDRESS)
+                palworldPlayers = await a2s.aplayers(palworldAddressTuple)
+                palworldInfo = await a2s.aplayers(palworldAddressTuple)
 
+                return format_palworld(palworldInfo, palworldPlayers, SCOZ_PALWORLD_ADDRESS)
+
+            except Exception as e:
+                return format_palworld(1,1,SCOZ_PALWORLD_ADDRESS)
 
 async def ark_ping(category):
     match(category):
         case "dwarf":
-            arkPortsToQuery = [7011]
             arkServerCount = len(arkPortsToQuery)
             arkServerQuery2DArray = [] 
 
@@ -103,12 +88,10 @@ async def ark_ping(category):
 
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
+
                     arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
 
                 except Exception as e:
-                    print(e)
-                    continue
+                    arkServerQuery2DArray.append(e)
 
             return format_ark(arkServerQuery2DArray)
-
-

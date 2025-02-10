@@ -7,19 +7,31 @@ load_dotenv()
 ADMIN_ID=os.getenv("ADMIN_ID")
 
 def generate_help_embed():
+    """Returns an embed that shows how to use commands.
+
+    Returns:
+        (discord.Embed): Help Embed that explains commands.
+    """
     embed = discord.Embed(
         title="Help",
         color=discord.Colour.dark_gray()
     )
 
-    embed.add_field(name=".create supervisor", value="Sends the results of a ping, and will update that message periodically. Dhar Mann will only update one supervisor per channel.")
-    embed.add_field(name=".delete supervisor", value="Deletes the supervisor of the active channel, if there is one.")
+    embed.add_field(name=".create supervisor <category>", value="Creates a supervisor in this channel with the servers of the specified category. There can only be one supervisor per category in the same channel.")
+    embed.add_field(name=".delete supervisor <category>", value="Removes the supervisor of the specified category in this channel.")
+    embed.add_field(name=".help", value="Show this helmp embed.")
 
     return embed
         
 
 async def convertMessageToCommand(message, prefix=""):
-    if not message.content.startswith(prefix) and message.author.id != ADMIN_ID:
+    """Interprets a discord message into a command for the bot.
+
+    Args:
+        message (discord.Message): The message to process.
+        prefix (str, optional): The prefix that the provided message must start with, otherwise it will be ignored. Defaults to no prefix.
+    """
+    if not message.content.startswith(prefix) and not message.author.id != ADMIN_ID:
         return
     
     arguments = message.content[1:].split(" ")
