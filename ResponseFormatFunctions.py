@@ -75,34 +75,46 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
     embed.set_footer(text=time())
     return embed
 
-def format_palworld(palworldInfo, palworldPlayers, palworldAddress, palworldOnlineTitle="Palworld", palworldOfflineTitle="Palworld Offline"):
+def format_palworld(server_info,palworldSettings,palworldPlayers,palworldAddress, palworldOnlineTitle="Palworld", palworldOfflineTitle="Palworld: Offline"):
     embed = discord.Embed(
-        title=palworldOfflineTitle,
-        color=darkRed,
-    )
-
-    if palworldInfo != 1:
-        embed = discord.Embed(
-            title=palworldOnlineTitle,
-            color=blue,
+        title=palworldTitle,
+        color=deadColor,
+        description="The Server is Offline."
         )
 
-        palworldVersion = palworldInfo.version
-        embed.add_field(name="", value=f"{palworldVersion}")
-        embed.add_field(name="", value=palworldAddress,inline=True)
+    try:   
+        #If the palworld server is down, the library will return a dictionary with the single entry of 'error'. In this case, we check to see if the dictionary contains
+        # any key for error. If it does, that means the server is inaccessible.
+        # However, in that case, there would be no exception. So the code looks a little funny, if not messy. But that's the price to pay for my approach.
+        if server_info['error']:
+            pass
+
+    except:
+        #this runs if there is no error, both in connecting to the server and in the dictionary returned by the library.
+        palworldSettings = json.loads(palworldSettings)
+        version = server_info['version']
+
+        palworldPlayers = palworldPlayers["players"]
+        maxPlayers = palworldSettings["ServerPlayerMaxNum"]
+        playerCount = len(palworldPlayers)
         
-        if javaPlayerList != None:        
-            for player in javaPlayerList:
+        embed = discord.Embed(
+            title=palworldTitle,
+            color=aliveColor,
+        )
 
-                match(player.name):
-                        
-                    case _:
-                        formattedUsernames += " " + i.name + "\n"
+        embed.set_footer(text=time())
 
-                        embed.add_field(name="", value="",inline=False)
-                        embed.add_field(name="Players", value="")
-                        embed.add_field(name="", value=formattedUsernames,inline=True)
+        embed.add_field(name=f"{version}",value="") 
+        embed.add_field(name="",value=palworldAddress,inline=True)
 
+        formattedUsernames = ""
+        if len(palworldPlayers) > 0:
+            embed.add_field(name="",value="",inline=False) 
+            embed.add_field(name="Players", value=f"{playerCount}" + "/" + f"{maxPlayers}",inline=True)
+            for i in palworldPlayers:
+                formattedUsernames += " " + i['name'] + "\n"
+            embed.add_field(name="", value=formattedUsernames,inline=True)
 
     embed.set_footer(text=time())
     return embed

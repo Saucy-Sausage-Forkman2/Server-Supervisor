@@ -31,7 +31,7 @@ async def convertMessageToCommand(message, prefix=""):
         message (discord.Message): The message to process.
         prefix (str, optional): The prefix that the provided message must start with, otherwise it will be ignored. Defaults to no prefix.
     """
-    if not message.content.startswith(prefix) and not message.author.id != ADMIN_ID:
+    if not message.content.startswith(prefix) or not message.author.id != ADMIN_ID:
         return
     
     arguments = message.content[1:].split(" ")

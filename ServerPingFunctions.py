@@ -34,7 +34,7 @@ async def minecraft_ping(category):
     match(category):
         case "scoz":
             try:
-                javaStatus = await JavaServer.async_lookup(ADDRESS+":"+SCOZ_JAVA_PORT)
+                javaStatus = await JavaServer.async_lookup(SCOZ_PUBLIC_ADDRESS+":"+SCOZ_JAVA_PORT)
                 javaStatus = await javaStatus.async_status()
 
             except Exception as e:
@@ -50,7 +50,7 @@ async def minecraft_ping(category):
         case "dhar":
             #Java Status Request
             try:
-            	javaStatus = await JavaServer.async_lookup(ADDRESS_2+":"+DHAR_MINECRAFT_PORT)
+            	javaStatus = await JavaServer.async_lookup(DHAR_PUBLIC_ADDRESS+":"+DHAR_MINECRAFT_PORT)
             	javaStatus = await javaStatus.async_status()
 
             except Exception as e:
@@ -66,7 +66,7 @@ async def palworld_ping(category):
     match(category):
         case "scoz":
             try:
-                palworldAddressTuple = (ADDRESS_2, SCOZ_PALWORLD_PORT)
+                palworldAddressTuple = (SCOZ_PUBLIC_ADDRESS, SCOZ_PALWORLD_PORT)
 
                 palworldPlayers = await a2s.aplayers(palworldAddressTuple)
                 palworldInfo = await a2s.aplayers(palworldAddressTuple)
@@ -84,7 +84,7 @@ async def ark_ping(category):
 
             for arkPort in arkPortsToQuery:
                 try:
-                    arkAddress = (ADDRESS_2,arkPort)
+                    arkAddress = (SCOZ_PUBLIC_ADDRESS,arkPort)
 
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
