@@ -60,6 +60,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
 
             if type(arkServerInfoArray) != list:
                 arkEmbedFields.append(str(arkServerInfoArray))
+                arkEmbedAddresses.append("")
                 continue
 
             #0 address, 1 serverInfo, 2 serverPlayers
@@ -80,9 +81,12 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
             title=arkAllServersOnlineTitle,
             color=fuchsia
             )
-
+            
         for arkEmbedIndex in range( len( arkEmbedFields) ):
-            embed.add_field(name=arkEmbedFields[arkEmbedIndex],value=arkEmbedAddresses[arkEmbedIndex], inline=False)
+            embed.add_field(name=arkEmbedFields[arkEmbedIndex],value="", inline=True)
+            embed.add_field(name="",value=arkEmbedAddresses[arkEmbedIndex], inline=True)
+            embed.add_field(name="",value="", inline=False)
+                        
 
         
     embed.set_footer(text=time())

@@ -29,9 +29,9 @@ SCOZ_PALWORLD_ADMIN_PASSWORD = os.getenv("SCOZ_PALWORLD_ADMIN_PASSWORD")
 SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
-
-arkPortToMapConversionArray = ["The Island", "Aberration"]
-arkPortsToQuery       =       [7000        , 7004]
+arkPortToAddressConversionArray = ["theisland.bellycraft.net", "aberration.bellycraft.net"]
+arkPortToMapConversionArray     = ["The Island"              , "Aberration"]
+arkPortsToQuery                 = [7000                      , 7004]
 
 async def minecraft_ping(category):
     """Contacts the Minecraft server of the given category, and returns a discord embed.
@@ -111,15 +111,17 @@ async def ark_ping(category):
             arkServerQuery2DArray = [] 
 
             for arkPortIndex in range(len(arkPortsToQuery)):
+                arkMapName = arkPortToMapConversionArray[arkPortIndex]
+                arkAddress = (ADDRESS_2,arkPortsToQuery[arkPortIndex])
+                
                 try:
-                    arkAddress = (ADDRESS_2,arkPortsToQuery[arkPortIndex])
-                    arkMapName = arkPortToMapConversionArray[arkPortIndex]
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
 
-                    arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers, arkMapName])
+                    arkServerQuery2DArray.append([arkPortToAddressConversionArray[arkEmbedIndex],arkServerInfo,arkServerPlayers, arkMapName])
 
                 except Exception as e:
-                    arkServerQuery2DArray.append(f"{arkMapName}: Offline\n")
+                    arkServerQuery2DArray.append(f"{arkMapName}: Offline")
+                    continue
 
             return format_ark(arkServerQuery2DArray)
