@@ -30,8 +30,8 @@ SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 
-#7000 - The Island, 7004 - Aberration
-arkPortsToQuery = [7000,7004]
+arkPortToMapConversionArray = ["The Island", "Aberration"]
+arkPortsToQuery       =       [7000        , 7004]
 
 async def minecraft_ping(category):
     """Contacts the Minecraft server of the given category, and returns a discord embed.
@@ -110,16 +110,16 @@ async def ark_ping(category):
             arkServerCount = len(arkPortsToQuery)
             arkServerQuery2DArray = [] 
 
-            for arkPort in arkPortsToQuery:
+            for arkPortIndex in range(len(arkPortsToQuery)):
                 try:
-                    arkAddress = (ADDRESS_2,arkPort)
-
+                    arkAddress = (ADDRESS_2,arkPortsToQuery[arkPortIndex])
+                    arkMapName = arkPortToMapConversionArray[arkPortIndex]
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
 
-                    arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
+                    arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers, arkMapName])
 
                 except Exception as e:
-                    arkServerQuery2DArray.append(f"Server {arkPortsToQuery.index(arkPort)+1} Offline\n")
+                    arkServerQuery2DArray.append(f"{arkMapName}: Offline\n")
 
             return format_ark(arkServerQuery2DArray)

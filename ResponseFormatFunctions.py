@@ -48,6 +48,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
     embed = 0
     
     arkEmbedFields = []
+    arkEmbedAddresses = []
 
     if arkServerQuery2DArray == []:
         embed = discord.Embed(
@@ -63,25 +64,25 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
 
             #0 address, 1 serverInfo, 2 serverPlayers
             arkServerInfo = arkServerInfoArray[1]
+            arkMapName = arkServerInfoArray[3]
 
             arkServerName = arkServerInfo.server_name
-            arkMapName = arkServerInfo.map_name
             arkPlayerCount = arkServerInfo.player_count
-            
-            match(arkMapName):
-                case "TheIsland": 
-                    arkMapName="The Island"
 
-            arkEmbedFieldTemplate = f"{arkServerName} ({arkMapName}): {arkPlayerCount} survivor(s) online\n"
+
+            arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount} online\n"
             arkEmbedFields.append(arkEmbedFieldTemplate)
+
+            arkEmbedAddressTemplate =f"{arkServerInfoArray[0][0]}:{arkServerInfoArray[0][1]}"
+            arkEmbedAddresses.append(arkEmbedAddressTemplate)
 
         embed = discord.Embed(
             title=arkAllServersOnlineTitle,
             color=fuchsia
             )
 
-        for arkEmbedPair in arkEmbedFields:
-            embed.add_field(name=arkEmbedPair,value="", inline=False)
+        for arkEmbedIndex in range( len( arkEmbedFields) ):
+            embed.add_field(name=arkEmbedFields[arkEmbedIndex],value=arkEmbedAddresses[arkEmbedIndex], inline=False)
 
         
     embed.set_footer(text=time())
