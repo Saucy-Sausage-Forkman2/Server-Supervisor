@@ -31,7 +31,7 @@ SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 arkPortToAddressConversionArray = ["theisland.bellycraft.net", "aberration.bellycraft.net"]
 arkPortToMapConversionArray     = ["The Island"              , "Aberration"]
-arkPortsToQuery                 = [7000                      , 7004]
+arkPortsToQuery                 = [7001                      , 7004]
 
 async def minecraft_ping(category):
     """Contacts the Minecraft server of the given category, and returns a discord embed.
@@ -118,9 +118,10 @@ async def ark_ping(category):
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)
 
-                    arkServerQuery2DArray.append([arkPortToAddressConversionArray[arkEmbedIndex],arkServerInfo,arkServerPlayers, arkMapName])
+                    arkServerQuery2DArray.append([arkPortToAddressConversionArray[arkPortIndex],arkServerInfo,arkServerPlayers, arkMapName])
 
                 except Exception as e:
+                    print(e)
                     arkServerQuery2DArray.append(f"{arkMapName}: Offline")
                     continue
 
