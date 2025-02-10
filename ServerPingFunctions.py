@@ -120,6 +120,6 @@ async def ark_ping(category):
                     arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
 
                 except Exception as e:
-                    arkServerQuery2DArray.append(f"Server {arkPortsToQuery.index(arkPort)+1} Offline")
+                    arkServerQuery2DArray.append(f"Server {arkPortsToQuery.index(arkPort)+1} Offline\n")
 
             return format_ark(arkServerQuery2DArray)
