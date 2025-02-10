@@ -12,6 +12,7 @@ def generate_help_embed():
     Returns:
         (discord.Embed): Help Embed that explains commands.
     """
+
     embed = discord.Embed(
         title="Help",
         color=discord.Colour.dark_gray()
@@ -31,6 +32,7 @@ async def convertMessageToCommand(message, prefix=""):
         message (discord.Message): The message to process.
         prefix (str, optional): The prefix that the provided message must start with, otherwise it will be ignored. Defaults to no prefix.
     """
+    
     if not message.content.startswith(prefix) or not message.author.id != ADMIN_ID:
         return
     
@@ -48,7 +50,7 @@ async def convertMessageToCommand(message, prefix=""):
 
             match(arguments[0]):
                 case "supervisor":
-                    await json_create_supervisor(message, arguments[1])
+                    await json_create_supervisor(message.channel, arguments[1])
 
                 case _:
                     await message.channel.send(embed=generate_help_embed())
@@ -61,7 +63,7 @@ async def convertMessageToCommand(message, prefix=""):
 
             match(arguments[0]):
                 case "supervisor":
-                    await json_remove_supervisor(message, arguments[1])
+                    await json_remove_supervisor(message.channel.id, arguments[1])
 
                 case _:
                     await message.channel.send(embed=generate_help_embed())

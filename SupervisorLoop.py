@@ -6,13 +6,14 @@ from JsonInterpreter import json_create_supervisor, json_remove_supervisor, json
 from ServerPingFunctions import ark_ping, minecraft_ping, palworld_ping
 
 async def supervisor_loop(client, quickUpdate=False, updateDelayInSeconds=60):
-    """Infinite loop that updates all supervisors.
+    """Infinite loop that updates all supervisors. Does not return.
 
     Args:
         client (discord.Client): The bot client used to lookup messages and channels by their numerical id.
         quickUpdate (bool, optional): If true, will only run once. Defaults to False.
         updateDelayInSeconds (int, optional): How long to sleep between each iteration of the loop. Defaults to 60.
     """
+    
     while True:
         jsonFile = json_open()
         jsonFile = json.load(jsonFile)

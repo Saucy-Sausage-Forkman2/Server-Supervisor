@@ -4,6 +4,7 @@ from mcstatus import JavaServer
 from mcstatus import BedrockServer
 import a2s
 from dotenv import load_dotenv
+from palworld_api import PalworldAPI
 
 from ResponseFormatFunctions import format_ark, format_minecraft, format_palworld
 
@@ -21,6 +22,10 @@ DHAR_MINECRAFT_PORT=os.getenv("DHAR_MINECRAFT_PORT")
 
 MINECRAFT_SUB_DOMAIN="mc."
 
+SCOZ_PALWORLD_REST_PORT=os.getenv("SCOZ_PALWORLD_REST_PORT")
+SCOZ_PALWORLD_ADMIN_USERNAME = os.getenv("SCOZ_PALWORLD_ADMIN_USERNAME")
+SCOZ_PALWORLD_ADMIN_PASSWORD = os.getenv("SCOZ_PALWORLD_ADMIN_PASSWORD")
+
 SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
@@ -28,17 +33,26 @@ DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 arkPortsToQuery = [7011]
 
 async def minecraft_ping(category):
+    """Contacts the Minecraft server of the given category, and returns a discord embed.
+
+    Args:
+        category (str): The category to use when locating the Minecraft server.
+
+    Returns:
+        (discord.Embed): An embed that shows the server name, version, address, and online players.
+    """
+
     javaStatus = ""
     bedrockStatus = ""
 
     match(category):
         case "scoz":
             try:
-                javaStatus = await JavaServer.async_lookup(SCOZ_PUBLIC_ADDRESS+":"+SCOZ_JAVA_PORT)
+                javaStatus = await JavaServer.async_lookup(ADDRESS+":"+SCOZ_JAVA_PORT)
                 javaStatus = await javaStatus.async_status()
 
             except Exception as e:
-                javaStatus = e
+                javaStatus = f"{e}"
 
             return format_minecraft(
                 javaStatus, 
@@ -50,11 +64,11 @@ async def minecraft_ping(category):
         case "dhar":
             #Java Status Request
             try:
-            	javaStatus = await JavaServer.async_lookup(DHAR_PUBLIC_ADDRESS+":"+DHAR_MINECRAFT_PORT)
+            	javaStatus = await JavaServer.async_lookup(ADDRESS_2+":"+DHAR_MINECRAFT_PORT)
             	javaStatus = await javaStatus.async_status()
 
             except Exception as e:
-            	javaStatus = e
+            	javaStatus = f"{e}"
 
             return format_minecraft(
                 javaStatus, 
@@ -63,20 +77,33 @@ async def minecraft_ping(category):
                 javaOnlineTitle="Mexican Border RP 2: Dhar Harder")
 
 async def palworld_ping(category):
+    """Contacts the Palworld server of the given category, and returns a discord embed.
+
+    Args:
+        category (str): The category to use when locating the Palworld server.
+
+    Returns:
+        (discord.Embed): An embed that shows the server name, version, address, and online players.
+    """
+
     match(category):
         case "scoz":
-            try:
-                palworldAddressTuple = (SCOZ_PUBLIC_ADDRESS, SCOZ_PALWORLD_PORT)
+            api = PalworldAPI("http://"+ADDRESS_2+":"+SCOZ_PALWORLD_REST_PORT, SCOZ_PALWORLD_ADMIN_USERNAME, SCOZ_PALWORLD_ADMIN_PASSWORD)
 
-                palworldPlayers = await a2s.aplayers(palworldAddressTuple)
-                palworldInfo = await a2s.aplayers(palworldAddressTuple)
-
-                return format_palworld(palworldInfo, palworldPlayers, SCOZ_PALWORLD_ADDRESS)
-
-            except Exception as e:
-                return format_palworld(1,1,SCOZ_PALWORLD_ADDRESS)
+            palworldInfo = await api.get_server_info() #dictionary, not json
+            palworldPlayers = await api.get_player_list()# print all names in array again
+            return format_palworld(palworldInfo, palworldPlayers, SCOZ_PALWORLD_ADDRESS)
 
 async def ark_ping(category):
+    """Contacts the entire Ark Survival Evolved server cluster of the given category, and returns a discord embed.
+
+    Args:
+        category (str): The category to use when locating the Ark cluster.
+
+    Returns:
+        (discord.Embed): An embed that shows the server names, addresses, and the number of online players in each server.
+    """
+
     match(category):
         case "dwarf":
             arkServerCount = len(arkPortsToQuery)
@@ -84,7 +111,7 @@ async def ark_ping(category):
 
             for arkPort in arkPortsToQuery:
                 try:
-                    arkAddress = (SCOZ_PUBLIC_ADDRESS,arkPort)
+                    arkAddress = (ADDRESS_2,arkPort)
 
                     arkServerInfo = await a2s.ainfo(arkAddress)
                     arkServerPlayers = await a2s.aplayers(arkAddress)

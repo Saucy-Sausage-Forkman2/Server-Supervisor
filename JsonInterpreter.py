@@ -8,6 +8,7 @@ def json_open():
     Returns:
         File: Json file: [Category][Channel ID] = Message ID
     """
+    
     return open(f"{jsonFileName}","r")
 
 def json_write(data):
@@ -16,6 +17,7 @@ def json_write(data):
     Args:
         data (json): Output of json.dumps
     """
+
     with open(f"{jsonFileName}","r+") as json_file:
         json_file.seek(0)
         json_file.truncate()
@@ -24,18 +26,19 @@ def json_write(data):
 
     return
 
-async def json_create_supervisor(message, category):
-    """Creates a supervisor of the specified category with the inputted message.
+async def json_create_supervisor(channel, category):
+    """Creates a supervisor of the specified category.
 
     Args:
-        message (discord.message): _description_
-        category (String): _description_
+        message (discord.message): The discord message object to gather necessary information from.
+        category (str): The category to create the supervisor for.
     """
+
     category = f"{category}"
-    pendingMessage = await message.channel.send("Pinging...")
+    pendingMessage = await channel.send("Pinging...")
 
     try:
-        await json_remove_supervisor(message,category,shouldPrint=False)
+        await json_remove_supervisor(channel.id,category,shouldPrint=False)
 
     except Exception as e: print(e)
         
@@ -47,7 +50,14 @@ async def json_create_supervisor(message, category):
 
     await supervisor_loop(quickUpdate=True)
 
-async def json_remove_supervisor(message, category,shouldPrint=True):
+async def json_remove_supervisor(channelID, category,shouldPrint=True):
+    """Removes the supervisor of the specified category.
+
+    Args:
+        message (discord.message): The discord message to find the channel from.
+        category (str): _description_
+    """
+
     category = f"{category}"
 
     json_file = open_json(jsonFileName)
@@ -57,8 +67,8 @@ async def json_remove_supervisor(message, category,shouldPrint=True):
         try:
 
             try:
-                dontcrash = await client.fetch_channel(message.channel.id)
-                dontcrash = await dontcrash.fetch_message(data[category][i][f"{message.channel.id}"])
+                dontcrash = await client.fetch_channel(channelID)
+                dontcrash = await dontcrash.fetch_message(data[category][i][f"{channelID}"])
 
                 await dontcrash.delete()
 
