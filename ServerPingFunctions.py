@@ -115,13 +115,11 @@ async def ark_ping(category):
                 arkAddress = (ADDRESS_2,arkPortsToQuery[arkPortIndex])
                 
                 try:
-                    arkServerInfo = await a2s.ainfo(arkAddress)
+                    arkServerInfo = await a2s.ainfo(arkAddress)	
                     arkServerPlayers = await a2s.aplayers(arkAddress)
-
                     arkServerQuery2DArray.append([arkPortToAddressConversionArray[arkPortIndex],arkServerInfo,arkServerPlayers, arkMapName])
 
                 except Exception as e:
-                    print(e)
                     arkServerQuery2DArray.append(f"{arkMapName}: Offline")
                     continue
 
