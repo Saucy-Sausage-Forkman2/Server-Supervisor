@@ -30,7 +30,7 @@ SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
 
-#7000 - The Island
+#7000 - The Island, 7004 - Aberration
 arkPortsToQuery = [7000,7004]
 
 async def minecraft_ping(category):
@@ -120,6 +120,6 @@ async def ark_ping(category):
                     arkServerQuery2DArray.append([arkAddress,arkServerInfo,arkServerPlayers])
 
                 except Exception as e:
-                    arkServerQuery2DArray.append(e)
+                    arkServerQuery2DArray.append(f"Server {arkPortsToQuery.index(arkPort)+1} Offline")
 
             return format_ark(arkServerQuery2DArray)
