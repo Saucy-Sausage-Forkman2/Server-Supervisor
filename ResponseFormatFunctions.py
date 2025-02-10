@@ -72,7 +72,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
                 case "TheIsland": 
                     arkMapName="The Island"
 
-            arkEmbedFieldTemplate = f"{arkServerName} ({arkMapName}): {arkPlayerCount}"
+            arkEmbedFieldTemplate = f"{arkServerName} ({arkMapName}): {arkPlayerCount} survivor(s) online\n"
             arkEmbedFields.append(arkEmbedFieldTemplate)
 
         embed = discord.Embed(
