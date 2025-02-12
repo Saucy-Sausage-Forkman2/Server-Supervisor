@@ -55,7 +55,6 @@ async def convertMessageToCommand(message, prefix=""):
                 case _:
                     await message.channel.send(embed=generate_help_embed())
 
-
         case "delete":
             if len(arguments) < 2:
                 await message.channel.send("Please provide a category.")
@@ -67,6 +66,3 @@ async def convertMessageToCommand(message, prefix=""):
 
                 case _:
                     await message.channel.send(embed=generate_help_embed())
-
-        case _:
-            await message.channel.send(embed=generate_help_embed())

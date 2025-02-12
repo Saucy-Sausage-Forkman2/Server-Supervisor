@@ -29,6 +29,7 @@ SCOZ_PALWORLD_ADMIN_PASSWORD = os.getenv("SCOZ_PALWORLD_ADMIN_PASSWORD")
 SCOZ_PALWORLD_ADDRESS=SCOZ_PUBLIC_ADDRESS+":"+SCOZ_PALWORLD_PORT
 SCOZ_JAVA_ADDRESS=MINECRAFT_SUB_DOMAIN+SCOZ_PUBLIC_ADDRESS
 DHAR_MINECRAFT_ADDRESS=MINECRAFT_SUB_DOMAIN+DHAR_PUBLIC_ADDRESS
+
 arkPortToAddressConversionArray = ["theisland.bellycraft.net", "aberration.bellycraft.net", "extinction.bellycraft.net"]
 arkPortToMapConversionArray     = ["The Island"              , "Aberration"               , "Extinction"]
 arkPortsToQuery                 = [7001                      , 7004                       ,  7007]
