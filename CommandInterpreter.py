@@ -25,7 +25,7 @@ def generate_help_embed():
     return embed
         
 
-async def convertMessageToCommand(message, prefix=""):
+async def convertMessageToCommand(message, client, prefix=""):
     """Interprets a discord message into a command for the bot.
 
     Args:
@@ -62,7 +62,7 @@ async def convertMessageToCommand(message, prefix=""):
 
             match(arguments[0]):
                 case "supervisor":
-                    await json_remove_supervisor(message.channel.id, arguments[1])
+                    await json_remove_supervisor(client, message.channel.id, arguments[1])
 
                 case _:
                     await message.channel.send(embed=generate_help_embed())

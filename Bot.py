@@ -22,7 +22,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    await convertMessageToCommand(message, prefix=prefix)
+    await convertMessageToCommand(message, client, prefix=prefix)
 
 client.run(os.getenv('TOKEN'))
 

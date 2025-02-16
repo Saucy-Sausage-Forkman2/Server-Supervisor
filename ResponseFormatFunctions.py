@@ -72,7 +72,7 @@ def format_ark(arkServerQuery2DArray, arkAllServersOfflineTitle="Ark: Offline",a
 
             arkEmbedFieldTemplate = f"{arkServerName[:-12]} ({arkMapName}): {arkPlayerCount} online\n"
             arkEmbedFields.append(arkEmbedFieldTemplate)
-            print(arkServerInfoArray    )
+
             arkEmbedAddressTemplate =f"{arkServerInfoArray[0]}"
             arkEmbedAddresses.append(arkEmbedAddressTemplate)
 

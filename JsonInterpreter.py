@@ -42,15 +42,15 @@ async def json_create_supervisor(channel, category):
 
     except Exception as e: print(e)
         
-    json_file = open_json(jsonFileName)
+    json_file = json_open()
     data = json.load(json_file)
 
     data[category].append({pendingMessage.channel.id:pendingMessage.id})
-    write_json(data,jsonFileName)
+    json_write(data)
 
     await supervisor_loop(quickUpdate=True)
 
-async def json_remove_supervisor(channelID, category,shouldPrint=True):
+async def json_remove_supervisor(client, channelID, category,shouldPrint=True):
     """Removes the supervisor of the specified category.
 
     Args:
@@ -60,17 +60,20 @@ async def json_remove_supervisor(channelID, category,shouldPrint=True):
 
     category = f"{category}"
 
-    json_file = open_json(jsonFileName)
+    json_file = json_open()
     data = json.load(json_file)
-
+	
+    dontcrash = await client.fetch_channel(channelID)
+	
     for i in range(len(data[category])):
+        
         try:
 
             try:
-                dontcrash = await client.fetch_channel(channelID)
                 dontcrash = await dontcrash.fetch_message(data[category][i][f"{channelID}"])
 
                 await dontcrash.delete()
+                if shouldPrint: await dontcrash.send("Supervisor disabled.")
 
             except Exception as e: 
                 print(e)
@@ -82,12 +85,11 @@ async def json_remove_supervisor(channelID, category,shouldPrint=True):
             continue
 
         else:
-            write_json(data,jsonFileName)
-            if shouldPrint: await message.channel.send("Supervisor disabled.")
+            json_write(data)
 
             return
 
-    if shouldPrint: await message.channel.send("There is no active supervisor in this channel.")
+    if shouldPrint: await dontcrash.send("There is no active supervisor in this channel.")
 
     return
 
