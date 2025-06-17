@@ -5,7 +5,7 @@ import asyncio
 from JsonInterpreter import json_create_supervisor, json_remove_supervisor, json_open, json_write
 from ServerPingFunctions import ark_ping, minecraft_ping, palworld_ping
 
-def generateEmptyEmbed() {
+def generateEmptyEmbed():
     """Returns an embed that indicates there are no active servers for the given category.
 
     Returns:
@@ -20,7 +20,7 @@ def generateEmptyEmbed() {
     embed.add_field(name="", value="There are no active servers.")
 
     return embed
-}
+
 
 async def supervisor_loop(client, quickUpdate=False, updateDelayInSeconds=60):
     """Infinite loop that updates all supervisors. Does not return.
