@@ -6,7 +6,7 @@ import os
 load_dotenv()
 ADMIN_ID=os.getenv("ADMIN_ID")
 
-def generate_help_embed():
+def generateHelpEmbed():
     """Returns an embed that shows how to use commands.
 
     Returns:
@@ -20,10 +20,9 @@ def generate_help_embed():
 
     embed.add_field(name=".create supervisor <category>", value="Creates a supervisor in this channel with the servers of the specified category. There can only be one supervisor per category in the same channel.")
     embed.add_field(name=".delete supervisor <category>", value="Removes the supervisor of the specified category in this channel.")
-    embed.add_field(name=".help", value="Show this helmp embed.")
+    embed.add_field(name=".help", value="Show this help embed.")
 
     return embed
-        
 
 async def convertMessageToCommand(message, client, prefix=""):
     """Interprets a discord message into a command for the bot.
@@ -53,7 +52,7 @@ async def convertMessageToCommand(message, client, prefix=""):
                     await json_create_supervisor(message.channel, arguments[1])
 
                 case _:
-                    await message.channel.send(embed=generate_help_embed())
+                    await message.channel.send(embed=generateHelpEmbed())
 
         case "delete":
             if len(arguments) < 2:
@@ -65,4 +64,4 @@ async def convertMessageToCommand(message, client, prefix=""):
                     await json_remove_supervisor(client, message.channel.id, arguments[1])
 
                 case _:
-                    await message.channel.send(embed=generate_help_embed())
+                    await message.channel.send(embed=generateHelpEmbed())
